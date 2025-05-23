@@ -1,6 +1,7 @@
 #include <GL/freeglut.h>
 #include "Camera.h"
 #include <cmath>
+#include <cstdlib>
 
 Camera camera;
 bool keys[256];
@@ -11,6 +12,14 @@ float lastTime = 0.0f;
 float doorAngle = 0.0f;
 bool doorOpen = false;
 const float PI = 3.14159f;
+
+float carX = -50.0f;   
+float carZ = 0.0f;
+float carSpeed = 5.0f; 
+float carAngle = 0.0f;
+int currentPathIndex = 0;
+const int numPathSegments = 4;
+float pathAngles[] = { 0.0f, 90.0f, 180.0f, 270.0f };
 
 void drawFlashlightModel() {
     glMatrixMode(GL_PROJECTION);
@@ -200,6 +209,51 @@ void drawHouse(float x, float z) {
     glPopMatrix();
 }
 
+void drawCar(float x, float z, float angle) {
+    glPushMatrix();
+    glTranslatef(x, 0.5f, z);              
+    glRotatef(angle, 0.0f, 1.0f, 0.0f);   
+
+    // Cos 
+    glPushMatrix();
+    glColor3f(0.2f, 0.2f, 1.0f); 
+    glScalef(2.0f, 0.5f, 1.0f); 
+    glutSolidCube(1.0f);
+    glPopMatrix();
+
+    // Rodes (4)
+    glColor3f(0.0f, 0.0f, 0.0f); 
+    float offsetX = 0.9f;
+    float offsetZ = 0.4f;
+    float wheelY = -0.25f;
+
+    
+    glPushMatrix();
+    glTranslatef(-offsetX, wheelY, offsetZ);
+    glutSolidSphere(0.2f, 10, 10);
+    glPopMatrix();
+
+    
+    glPushMatrix();
+    glTranslatef(-offsetX, wheelY, -offsetZ);
+    glutSolidSphere(0.2f, 10, 10);
+    glPopMatrix();
+
+    
+    glPushMatrix();
+    glTranslatef(offsetX, wheelY, offsetZ);
+    glutSolidSphere(0.2f, 10, 10);
+    glPopMatrix();
+
+    
+    glPushMatrix();
+    glTranslatef(offsetX, wheelY, -offsetZ);
+    glutSolidSphere(0.2f, 10, 10);
+    glPopMatrix();
+
+    glPopMatrix();
+}
+
 
 void display() {
 
@@ -221,6 +275,7 @@ void display() {
     drawGround();
     drawForest();
     drawHouse(-5.0f, -5.0f);
+    drawCar(carX, carZ, carAngle);
 
     glColor3f(0.0f, 0.5f, 1.0f);
     glutSolidCube(1);
@@ -256,6 +311,21 @@ void timer(int v) {
     if (doorAngle < targetAngle) doorAngle += 2.0f;
     else if (doorAngle > targetAngle) doorAngle -= 2.0f;
 
+    float rad = carAngle * PI / 180.0f;
+    carX += cos(rad) * carSpeed * deltaTime;
+    carZ += sin(rad) * carSpeed * deltaTime;
+
+    
+    if (abs(carX) > 50 || abs(carZ) > 50) {
+        currentPathIndex = rand() % numPathSegments; 
+        carAngle = pathAngles[currentPathIndex];
+
+        
+        if (carX > 50) carX = 49;
+        if (carX < -50) carX = -49;
+        if (carZ > 50) carZ = 49;
+        if (carZ < -50) carZ = -49;
+    }
 
     glutPostRedisplay();
     glutTimerFunc(16, timer, 0);
