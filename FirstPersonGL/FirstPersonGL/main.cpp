@@ -254,8 +254,82 @@ void drawCar(float x, float z, float angle) {
     glPopMatrix();
 }
 
+void drawMinimap() {
+    // Fons del minimapa (gespa)
+    glColor3f(0.1f, 0.3f, 0.1f);
+    glBegin(GL_QUADS);
+    glVertex2f(-60.0f, -60.0f);
+    glVertex2f(60.0f, -60.0f);
+    glVertex2f(60.0f, 60.0f);
+    glVertex2f(-60.0f, 60.0f);
+    glEnd();
+
+    // Casa (-5, -5) de mida 3x3
+    glColor3f(0.6f, 0.4f, 0.3f);
+    glBegin(GL_QUADS);
+    glVertex2f(-6.5f, -6.5f);
+    glVertex2f(-3.5f, -6.5f);
+    glVertex2f(-3.5f, -3.5f);
+    glVertex2f(-6.5f, -3.5f);
+    glEnd();
+
+    // Arbres (puntets verds)
+    glColor3f(0.0f, 0.8f, 0.0f);
+    glPointSize(3.0f);
+    glBegin(GL_POINTS);
+    for (float x = -50; x <= 50; x += 5) {
+        for (float z = -50; z <= 50; z += 5) {
+            if ((int(x + z)) % 2 == 0)
+                glVertex2f(x, z);
+        }
+    }
+    glEnd();
+
+    // Cotxe (blau)
+    glColor3f(0.2f, 0.2f, 1.0f);
+    glPointSize(6.0f);
+    glBegin(GL_POINTS);
+    glVertex2f(carX, carZ);
+    glEnd();
+
+    // Jugador (vermell)
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glPointSize(6.0f);
+    glBegin(GL_POINTS);
+    glVertex2f(camera.getX(), camera.getZ());
+    glEnd();
+}
+
+void renderMinimapViewport(int screenWidth, int screenHeight) {
+    // Viewport 200x200 a la cantonada superior dreta
+    glViewport(screenWidth - 200, screenHeight - 200, 200, 200);
+
+    // Projecció ortogràfica per al layout 2D del món
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(-60, 60, -60, 60, -1, 1);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_LIGHTING);
+    drawMinimap();
+    glEnable(GL_LIGHTING);
+    glEnable(GL_DEPTH_TEST);
+
+}
+
 
 void display() {
+    glViewport(0, 0, 800, 600); // dimensions de la finestra
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(60, 800.0 / 600.0, 0.1, 1000.0); // perspectiva normal
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    camera.apply();
 
     SkyColorChange();
     updateLighting();
@@ -277,8 +351,7 @@ void display() {
     drawHouse(-5.0f, -5.0f);
     drawCar(carX, carZ, carAngle);
 
-    glColor3f(0.0f, 0.5f, 1.0f);
-    glutSolidCube(1);
+    renderMinimapViewport(800, 600);
 
     glutSwapBuffers();
 }
