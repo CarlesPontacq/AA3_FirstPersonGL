@@ -1,9 +1,14 @@
 #include <GL/freeglut.h>
 #include "Camera.h"
+#include <cmath>
 
 Camera camera;
 bool keys[256];
 bool isNight = true;
+float sunAngle = 0.0f;
+float dayDuration = 60.0f; // segons per a un dia complet
+float lastTime = 0.0f;
+const float PI = 3.14159f;
 
 void drawFlashlightModel() {
     glMatrixMode(GL_PROJECTION);
@@ -54,13 +59,12 @@ void drawTree(float x, float z) {
     // Tronc
     glPushMatrix();
     glColor3f(0.5f, 0.25f, 0.1f);
-    glRotatef(-90, 1.0f, 0.0f, 0.0f); // Fer que el cilindre sigui vertical
+    glRotatef(-90, 1.0f, 0.0f, 0.0f); 
     GLUquadric* trunk = gluNewQuadric();
     gluCylinder(trunk, 0.1f, 0.1f, 1.0f, 12, 3);
     gluDeleteQuadric(trunk);
     glPopMatrix();
 
-    // Copa (esfera damunt del tronc)
     glPushMatrix();
     glTranslatef(0.0f, 1.0f + 0.5f, 0.0f);
     glColor3f(0.0f, 0.6f, 0.0f);
@@ -80,7 +84,7 @@ void drawForest() {
 }
 
 void drawGround() {
-    glColor3f(0.1f, 0.35f, 0.1f); // Verd fosc, tipus gespa
+    glColor3f(0.1f, 0.35f, 0.1f); 
     glBegin(GL_QUADS);
     glVertex3f(-100.0f, 0.0f, -100.0f);
     glVertex3f(-100.0f, 0.0f, 100.0f);
@@ -89,7 +93,70 @@ void drawGround() {
     glEnd();
 }
 
+void updateLighting() {
+    float rawIntensity = sinf(sunAngle);
+    float intensity = 0.5f * rawIntensity + 0.5f;
+
+    float lightColor[4];
+    if (intensity > 0.1f) {
+        lightColor[0] = 1.0f * intensity;
+        lightColor[1] = 1.0f * intensity;
+        lightColor[2] = 0.9f * intensity;
+    }
+    else {
+        lightColor[0] = 0.1f * intensity;
+        lightColor[1] = 0.1f * intensity;
+        lightColor[2] = 0.2f * intensity;
+    }
+    lightColor[3] = 1.0f;
+
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightColor);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, lightColor);
+
+    float ambientStrength = (intensity > 0.1f) ? 0.3f : 0.1f;
+    float ambient[4] = { ambientStrength, ambientStrength, ambientStrength, 1.0f };
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
+}
+
+void SkyColorChange() {
+    float t = fmodf(sunAngle, 2.0f * PI) / (2.0f * PI);
+
+    float morning[3] = { 1.0f, 0.5f, 0.2f };
+    float day[3] = { 0.5f, 0.8f, 1.0f };
+    float evening[3] = { 1.0f, 0.3f, 0.0f };
+    float night[3] = { 0.05f, 0.05f, 0.2f };
+
+    float skyRGB[3];
+
+    if (t < 0.25f) {
+        float localT = t / 0.25f;
+        for (int i = 0; i < 3; ++i)
+            skyRGB[i] = morning[i] * (1.0f - localT) + day[i] * localT;
+    }
+    else if (t < 0.5f) {
+        float localT = (t - 0.25f) / 0.25f;
+        for (int i = 0; i < 3; ++i)
+            skyRGB[i] = day[i] * (1.0f - localT) + evening[i] * localT;
+    }
+    else if (t < 0.75f) {
+        float localT = (t - 0.5f) / 0.25f;
+        for (int i = 0; i < 3; ++i)
+            skyRGB[i] = evening[i] * (1.0f - localT) + night[i] * localT;
+    }
+    else {
+        float localT = (t - 0.75f) / 0.25f;
+        for (int i = 0; i < 3; ++i)
+            skyRGB[i] = night[i] * (1.0f - localT) + morning[i] * localT;
+    }
+
+    glClearColor(skyRGB[0], skyRGB[1], skyRGB[2], 1.0f);
+}
+
 void display() {
+
+    SkyColorChange();
+    updateLighting();
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (isNight) glDisable(GL_LIGHT2);
@@ -127,6 +194,14 @@ void timer(int v) {
     if (keys['s']) camera.moveForward(-speed);
     if (keys['a']) camera.strafe(-speed);
     if (keys['d']) camera.strafe(speed);
+
+    float currentTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
+    float deltaTime = currentTime - lastTime;
+    lastTime = currentTime;
+
+    sunAngle += (2.0f * PI / dayDuration) * deltaTime;
+    if (sunAngle > 2.0f * PI) sunAngle -= 2.0f * PI;
+
 
     glutPostRedisplay();
     glutTimerFunc(16, timer, 0);
