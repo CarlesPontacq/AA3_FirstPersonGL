@@ -8,6 +8,8 @@ bool isNight = true;
 float sunAngle = 0.0f;
 float dayDuration = 60.0f; // segons per a un dia complet
 float lastTime = 0.0f;
+float doorAngle = 0.0f;
+bool doorOpen = false;
 const float PI = 3.14159f;
 
 void drawFlashlightModel() {
@@ -152,6 +154,53 @@ void SkyColorChange() {
     glClearColor(skyRGB[0], skyRGB[1], skyRGB[2], 1.0f);
 }
 
+void drawHouse(float x, float z) {
+    glPushMatrix();
+    glTranslatef(x, 0.0f, z);
+
+    // Cos principal de la casa
+    glPushMatrix();
+    glColor3f(0.6f, 0.4f, 0.3f);
+    glTranslatef(0.0f, 1.0f, 0.0f);
+    glScalef(3.0f, 2.0f, 3.0f);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+
+    // Sostre
+    glPushMatrix();
+    glColor3f(0.4f, 0.1f, 0.1f);
+    glTranslatef(0.0f, 2.0f, 0.0f);
+    glBegin(GL_TRIANGLES);
+    glVertex3f(-1.5f, 0.0f, 1.5f);
+    glVertex3f(1.5f, 0.0f, 1.5f);
+    glVertex3f(0.0f, 1.0f, 0.0f);
+    glVertex3f(1.5f, 0.0f, -1.5f);
+    glVertex3f(-1.5f, 0.0f, -1.5f);
+    glVertex3f(0.0f, 1.0f, 0.0f);
+    glVertex3f(-1.5f, 0.0f, -1.5f);
+    glVertex3f(-1.5f, 0.0f, 1.5f);
+    glVertex3f(0.0f, 1.0f, 0.0f);
+    glVertex3f(1.5f, 0.0f, 1.5f);
+    glVertex3f(1.5f, 0.0f, -1.5f);
+    glVertex3f(0.0f, 1.0f, 0.0f);
+    glEnd();
+    glPopMatrix();
+
+    
+    glPushMatrix();
+    glTranslatef(0.0f, 0.0f, 1.5f); 
+    glTranslatef(-0.25f, 1.0f, 0.01f); 
+    glRotatef(-doorAngle, 0.0f, 1.0f, 0.0f); 
+    glTranslatef(0.25f, -1.0f, 0.0f); 
+    glColor3f(0.3f, 0.2f, 0.1f);
+    glScalef(0.5f, 2.0f, 0.1f);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+
+    glPopMatrix();
+}
+
+
 void display() {
 
     SkyColorChange();
@@ -171,6 +220,7 @@ void display() {
 
     drawGround();
     drawForest();
+    drawHouse(-5.0f, -5.0f);
 
     glColor3f(0.0f, 0.5f, 1.0f);
     glutSolidCube(1);
@@ -202,6 +252,10 @@ void timer(int v) {
     sunAngle += (2.0f * PI / dayDuration) * deltaTime;
     if (sunAngle > 2.0f * PI) sunAngle -= 2.0f * PI;
 
+    float targetAngle = doorOpen ? 90.0f : 0.0f;
+    if (doorAngle < targetAngle) doorAngle += 2.0f;
+    else if (doorAngle > targetAngle) doorAngle -= 2.0f;
+
 
     glutPostRedisplay();
     glutTimerFunc(16, timer, 0);
@@ -210,6 +264,7 @@ void timer(int v) {
 void keyDown(unsigned char key, int x, int y) {
     keys[key] = true;
     if (key == 'n') isNight = !isNight;
+    if (key == 'e' || key == 'E') doorOpen = !doorOpen;
 }
 
 void keyUp(unsigned char key, int x, int y) {
