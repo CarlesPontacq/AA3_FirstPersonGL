@@ -255,7 +255,7 @@ void drawCar(float x, float z, float angle) {
 }
 
 void drawMinimap() {
-    // Fons del minimapa (gespa)
+    // Fons del minimapa
     glColor3f(0.1f, 0.3f, 0.1f);
     glBegin(GL_QUADS);
     glVertex2f(-60.0f, -60.0f);
@@ -264,8 +264,8 @@ void drawMinimap() {
     glVertex2f(-60.0f, 60.0f);
     glEnd();
 
-    // Casa (-5, -5) de mida 3x3
-    glColor3f(0.6f, 0.4f, 0.3f);
+    // Casa
+    glColor3f(1.0f, 0.0f, 1.0f);
     glBegin(GL_QUADS);
     glVertex2f(-6.5f, -6.5f);
     glVertex2f(-3.5f, -6.5f);
@@ -273,7 +273,7 @@ void drawMinimap() {
     glVertex2f(-6.5f, -3.5f);
     glEnd();
 
-    // Arbres (puntets verds)
+    // Arbres 
     glColor3f(0.0f, 0.8f, 0.0f);
     glPointSize(3.0f);
     glBegin(GL_POINTS);
@@ -285,14 +285,14 @@ void drawMinimap() {
     }
     glEnd();
 
-    // Cotxe (blau)
+    // Cotxe 
     glColor3f(0.2f, 0.2f, 1.0f);
     glPointSize(6.0f);
     glBegin(GL_POINTS);
     glVertex2f(carX, carZ);
     glEnd();
 
-    // Jugador (vermell)
+    // Jugador
     glColor3f(1.0f, 0.0f, 0.0f);
     glPointSize(6.0f);
     glBegin(GL_POINTS);
@@ -301,10 +301,10 @@ void drawMinimap() {
 }
 
 void renderMinimapViewport(int screenWidth, int screenHeight) {
-    // Viewport 200x200 a la cantonada superior dreta
+    
     glViewport(screenWidth - 200, screenHeight - 200, 200, 200);
 
-    // Projecció ortogràfica per al layout 2D del món
+    
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(-60, 60, -60, 60, -1, 1);
@@ -322,10 +322,10 @@ void renderMinimapViewport(int screenWidth, int screenHeight) {
 
 
 void display() {
-    glViewport(0, 0, 800, 600); // dimensions de la finestra
+    glViewport(0, 0, 800, 600); 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(60, 800.0 / 600.0, 0.1, 1000.0); // perspectiva normal
+    gluPerspective(60, 800.0 / 600.0, 0.1, 1000.0); 
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
