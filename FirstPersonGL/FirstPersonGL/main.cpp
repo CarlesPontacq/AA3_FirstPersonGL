@@ -368,10 +368,10 @@ void reshape(int w, int h) {
 
 void timer(int v) {
     float speed = 0.1f;
-    if (keys['w']) camera.moveForward(speed);
-    if (keys['s']) camera.moveForward(-speed);
-    if (keys['a']) camera.strafe(-speed);
-    if (keys['d']) camera.strafe(speed);
+    if (keys['w'] || keys['W']) camera.moveForward(speed);
+    if (keys['s'] || keys['S']) camera.moveForward(-speed);
+    if (keys['a'] || keys['A']) camera.strafe(-speed);
+    if (keys['d'] || keys['D']) camera.strafe(speed);
 
     float currentTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
     float deltaTime = currentTime - lastTime;
@@ -406,7 +406,7 @@ void timer(int v) {
 
 void keyDown(unsigned char key, int x, int y) {
     keys[key] = true;
-    if (key == 'n') isNight = !isNight;
+    if (key == 'n' || key == 'N') isNight = !isNight;
     if (key == 'e' || key == 'E') doorOpen = !doorOpen;
 }
 
