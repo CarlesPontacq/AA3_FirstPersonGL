@@ -21,6 +21,7 @@ int currentPathIndex = 0;
 const int numPathSegments = 4;
 float pathAngles[] = { 0.0f, 90.0f, 180.0f, 270.0f };
 
+// Función para dibujar la linterna del jugador
 void drawFlashlightModel() {
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
@@ -44,6 +45,7 @@ void drawFlashlightModel() {
     glMatrixMode(GL_MODELVIEW);
 }
 
+// Función para configurar los parámetros de iluminación del haz de luz de la linterna
 void updateFlashlightFromHUD() {
     if (!isNight) {
         glDisable(GL_LIGHT1);
@@ -63,6 +65,7 @@ void updateFlashlightFromHUD() {
     glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuse);
 }
 
+// Función que sirve para dibujar un solo árbol
 void drawTree(float x, float z) {
     glPushMatrix();
     glTranslatef(x, 0.0f, z);
@@ -85,6 +88,7 @@ void drawTree(float x, float z) {
     glPopMatrix();
 }
 
+// Función que llama a drawTree() segun un array de posiciones para dibujar todo el bosque
 void drawForest() {
     for (float x = -50; x <= 50; x += 3) {
         for (float z = -50; z <= 50; z += 3) {
@@ -94,6 +98,7 @@ void drawForest() {
     }
 }
 
+// Funcion para dibujar el suelo de la escena
 void drawGround() {
     glColor3f(0.1f, 0.35f, 0.1f); 
     glBegin(GL_QUADS);
@@ -104,6 +109,7 @@ void drawGround() {
     glEnd();
 }
 
+// Función para ajustar el color y la intensidad de la luz ambiental según el ángulo del sol
 void updateLighting() {
     float rawIntensity = sinf(sunAngle);
     float intensity = 0.5f * rawIntensity + 0.5f;
@@ -129,6 +135,7 @@ void updateLighting() {
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
 }
 
+// Funcion para modificar el color del cielo segun la hora del dia simulado
 void SkyColorChange() {
     float t = fmodf(sunAngle, 2.0f * PI) / (2.0f * PI);
 
@@ -163,6 +170,7 @@ void SkyColorChange() {
     glClearColor(skyRGB[0], skyRGB[1], skyRGB[2], 1.0f);
 }
 
+// Función para dibujar la casa por el centro de la escena
 void drawHouse(float x, float z) {
     glPushMatrix();
     glTranslatef(x, 0.0f, z);
@@ -209,6 +217,7 @@ void drawHouse(float x, float z) {
     glPopMatrix();
 }
 
+// Función para dibujar el coche que se va moviendo por la escena
 void drawCar(float x, float z, float angle) {
     glPushMatrix();
     glTranslatef(x, 0.5f, z);              
@@ -254,6 +263,7 @@ void drawCar(float x, float z, float angle) {
     glPopMatrix();
 }
 
+// Función para dibujar el contenido del minimapa en 2D
 void drawMinimap() {
     // Fons del minimapa
     glColor3f(0.1f, 0.3f, 0.1f);
@@ -300,6 +310,7 @@ void drawMinimap() {
     glEnd();
 }
 
+// Función para dibujar el minimapa en una viewport en la esquina superior derecha
 void renderMinimapViewport(int screenWidth, int screenHeight) {
     
     glViewport(screenWidth - 200, screenHeight - 200, 200, 200);
@@ -320,7 +331,7 @@ void renderMinimapViewport(int screenWidth, int screenHeight) {
 
 }
 
-
+// Función para ir dibujando todos los elementos de la escena por orden
 void display() {
     glViewport(0, 0, 800, 600); 
     glMatrixMode(GL_PROJECTION);
@@ -366,6 +377,7 @@ void reshape(int w, int h) {
     glMatrixMode(GL_MODELVIEW);
 }
 
+// Función para ir actualizando las posiciones o valores de algunos objetos 
 void timer(int v) {
     float speed = 0.1f;
     if (keys['w'] || keys['W']) camera.moveForward(speed);
@@ -404,6 +416,7 @@ void timer(int v) {
     glutTimerFunc(16, timer, 0);
 }
 
+// Función para encender o apagar la linterna o abrir o cerrar la puerta de la casa
 void keyDown(unsigned char key, int x, int y) {
     keys[key] = true;
     if (key == 'n' || key == 'N') isNight = !isNight;
@@ -414,6 +427,7 @@ void keyUp(unsigned char key, int x, int y) {
     keys[key] = false;
 }
 
+//Función para coger la posicion del raton en la pantalla
 void mouseMotion(int x, int y) {
     camera.mouseLook(x, y);
     glutWarpPointer(400, 300);
