@@ -1,5 +1,6 @@
 #pragma once
 
+// Header de la clase Camera
 class Camera {
 public:
     void init(int screenWidth, int screenHeight);
@@ -19,10 +20,3 @@ private:
 
     const float CAMERA_HEIGHT = 1.75f;
 };
-
-
-
-
-
-
-

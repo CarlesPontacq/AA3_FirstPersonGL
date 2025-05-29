@@ -4,6 +4,8 @@
 
 #define PI 3.14159265f
 
+// Inicializa la posición y orientación de la cámara.
+// También guarda el centro de la pantalla para calcular la rotación con el ratón.
 void Camera::init(int screenWidth, int screenHeight) {
     posX = 0.0f; posY = CAMERA_HEIGHT; posZ = 5.0f;
     yaw = -90.0f; pitch = 0.0f;
@@ -11,6 +13,8 @@ void Camera::init(int screenWidth, int screenHeight) {
     centerY = screenHeight / 2;
 }
 
+// Calcula la dirección de visión de la cámara a partir de yaw y pitch.
+// Establece la vista utilizando gluLookAt para simular una cámara en primera persona.
 void Camera::apply() {
     float radYaw = yaw * PI / 180.0f;
     float radPitch = pitch * PI / 180.0f;
@@ -24,6 +28,8 @@ void Camera::apply() {
         0.0f, 1.0f, 0.0f);
 }
 
+// Activa o desactiva la linterna (luz spotlight) en función del parámetro 'enabled'.
+// La luz sigue la posición y orientación actual de la cámara.
 void Camera::updateFlashlight(bool enabled) {
     if (enabled) {
         glEnable(GL_LIGHT1);
@@ -50,6 +56,7 @@ void Camera::updateFlashlight(bool enabled) {
     }
 }
 
+// Mueve la cámara hacia adelante o hacia atrás según el valor de 'delta'.
 void Camera::moveForward(float delta) {
     float radYaw = yaw * PI / 180.0f;
     float radPitch = pitch * PI / 180.0f;
@@ -59,6 +66,7 @@ void Camera::moveForward(float delta) {
     posY = CAMERA_HEIGHT;
 }
 
+// Desplaza la cámara lateralmente (izquierda o derecha) según 'delta'.
 void Camera::strafe(float delta) {
     float radYaw = (yaw + 90.0f) * PI / 180.0f;
     posX += cos(radYaw) * delta;
@@ -66,6 +74,8 @@ void Camera::strafe(float delta) {
     posY = CAMERA_HEIGHT;
 }
 
+// Actualiza los ángulos de orientación (yaw y pitch) en función del movimiento del ratón.
+// Aplica sensibilidad y limita el ángulo vertical para evitar rotaciones completas.
 void Camera::mouseLook(int x, int y) {
     float sensitivity = 0.2f;
     yaw += (x - centerX) * sensitivity;

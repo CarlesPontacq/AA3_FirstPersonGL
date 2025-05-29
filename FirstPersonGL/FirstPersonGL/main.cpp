@@ -21,7 +21,8 @@ int currentPathIndex = 0;
 const int numPathSegments = 4;
 float pathAngles[] = { 0.0f, 90.0f, 180.0f, 270.0f };
 
-// Función para dibujar la linterna del jugador
+// Esta función dibuja el modelo visual de la linterna en la vista del jugador, 
+// con transformaciones aplicadas directamente al HUD (no al mundo 3D).
 void drawFlashlightModel() {
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
@@ -45,7 +46,7 @@ void drawFlashlightModel() {
     glMatrixMode(GL_MODELVIEW);
 }
 
-// Función para configurar los parámetros de iluminación del haz de luz de la linterna
+// Función que configura y posiciona la luz spotlight que simula la linterna desde el HUD.
 void updateFlashlightFromHUD() {
     if (!isNight) {
         glDisable(GL_LIGHT1);
@@ -109,7 +110,7 @@ void drawGround() {
     glEnd();
 }
 
-// Función para ajustar el color y la intensidad de la luz ambiental según el ángulo del sol
+// Ajusta la intensidad y color de la luz ambiental en función del ángulo solar para simular un ciclo día-noche.
 void updateLighting() {
     float rawIntensity = sinf(sunAngle);
     float intensity = 0.5f * rawIntensity + 0.5f;
@@ -135,7 +136,7 @@ void updateLighting() {
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
 }
 
-// Funcion para modificar el color del cielo segun la hora del dia simulado
+// Calcula e interpola el color del cielo a lo largo del ciclo diario (mañana, día, tarde, noche).
 void SkyColorChange() {
     float t = fmodf(sunAngle, 2.0f * PI) / (2.0f * PI);
 
@@ -265,7 +266,7 @@ void drawCar(float x, float z, float angle) {
 
 // Función para dibujar el contenido del minimapa en 2D
 void drawMinimap() {
-    // Fons del minimapa
+    // Fondo del minimapa
     glColor3f(0.1f, 0.3f, 0.1f);
     glBegin(GL_QUADS);
     glVertex2f(-60.0f, -60.0f);
@@ -310,7 +311,7 @@ void drawMinimap() {
     glEnd();
 }
 
-// Función para dibujar el minimapa en una viewport en la esquina superior derecha
+// Prepara la configuración de una viewport secundaria con proyección ortográfica para mostrar el minimapa en 2D.
 void renderMinimapViewport(int screenWidth, int screenHeight) {
     
     glViewport(screenWidth - 200, screenHeight - 200, 200, 200);
