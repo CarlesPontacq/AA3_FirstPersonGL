@@ -1,6 +1,6 @@
 #pragma once
 
-// Header de la clase Camera
+// Header de la clase Camera con la definición de las variables y las funciones de la cámara
 class Camera {
 public:
     void init(int screenWidth, int screenHeight);

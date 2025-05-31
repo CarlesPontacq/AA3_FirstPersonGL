@@ -1,7 +1,11 @@
 #include <GL/freeglut.h>
 #include "Camera.h"
+#include "Collision.h"
 #include <cmath>
 #include <cstdlib>
+
+AABB houseAABB = { -6.5f, -3.5f, -6.5f, -3.5f }; // Collider de la casa
+AABB doorAABB = { -5.25f, -4.75f, -3.6f, -3.4f }; // Collider de la puerta
 
 Camera camera;
 bool keys[256];
@@ -20,6 +24,45 @@ float carAngle = 0.0f;
 int currentPathIndex = 0;
 const int numPathSegments = 4;
 float pathAngles[] = { 0.0f, 90.0f, 180.0f, 270.0f };
+
+// Esta funcion sirve para modificar el collider de la puerta segun que tan abierta o cerrada esta
+AABB computeDoorAABB(float doorAngleDegrees) {
+    // Centro de la puerta
+    float centerX = -5.0f;  // Posición de la casa en X
+    float centerZ = -3.5f;  // Posición frontal donde se encuentra la puerta
+
+    // Tamaño de la puerta
+    float width = 0.5f;
+    float depth = 0.1f;
+
+    // Cuando está cerrada, es vertical en Z
+    if (doorAngleDegrees == 0.0f) {
+        return { centerX - width / 2, centerX + width / 2,
+                 centerZ - depth / 2, centerZ + depth / 2 };
+    }
+    // Si está completamente abierta (90°), es horizontal
+    else if (doorAngleDegrees == 90.0f) {
+        return { centerX - depth / 2, centerX + depth / 2,
+                 centerZ - width / 2, centerZ + width / 2 };
+    }
+    // Intermedia: aproximamos por interpolación lineal (simple pero efectiva)
+    else {
+        float t = doorAngleDegrees / 90.0f;
+        float minX = centerX - (1.0f - t) * width / 2 - t * depth / 2;
+        float maxX = centerX + (1.0f - t) * width / 2 + t * depth / 2;
+        float minZ = centerZ - (1.0f - t) * depth / 2 - t * width / 2;
+        float maxZ = centerZ + (1.0f - t) * depth / 2 + t * width / 2;
+        return { minX, maxX, minZ, maxZ };
+    }
+}
+
+// Esta función comprueba si la camera esta collisionando con la puerta o la casa
+bool isColliding(float x, float z) {
+    AABB doorCollider = computeDoorAABB(doorAngle);
+
+    return houseAABB.contains(x, z) || doorCollider.contains(x, z);
+}
+
 
 // Esta función dibuja el modelo visual de la linterna en la vista del jugador, 
 // con transformaciones aplicadas directamente al HUD (no al mundo 3D).

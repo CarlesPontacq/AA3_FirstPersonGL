@@ -1,8 +1,12 @@
 #include "camera.h"
 #include <GL/freeglut.h>
 #include <cmath>
+#include "Collision.h"
 
 #define PI 3.14159265f
+
+// Función para coger la definicion del isColliding del main y usarla 
+extern bool isColliding(float x, float z);
 
 // Inicializa la posición y orientación de la cámara.
 // También guarda el centro de la pantalla para calcular la rotación con el ratón.
@@ -56,21 +60,33 @@ void Camera::updateFlashlight(bool enabled) {
     }
 }
 
-// Mueve la cámara hacia adelante o hacia atrás según el valor de 'delta'.
+// Mueve la cámara hacia adelante o hacia atrás según el valor de 'delta' y comprueba si collisiona con algun objeto.
 void Camera::moveForward(float delta) {
     float radYaw = yaw * PI / 180.0f;
     float radPitch = pitch * PI / 180.0f;
 
-    posX += cos(radYaw) * cos(radPitch) * delta;
-    posZ += sin(radYaw) * cos(radPitch) * delta;
+    float nextX = posX + cos(radYaw) * cos(radPitch) * delta;
+    float nextZ = posZ + sin(radYaw) * cos(radPitch) * delta;
+
+    if (!isColliding(nextX, nextZ)) {
+        posX = nextX;
+        posZ = nextZ;
+    }
+
     posY = CAMERA_HEIGHT;
 }
 
-// Desplaza la cámara lateralmente (izquierda o derecha) según 'delta'.
+// Desplaza la cámara lateralmente (izquierda o derecha) según 'delta' y comprueba si collisiona con algun objeto.
 void Camera::strafe(float delta) {
     float radYaw = (yaw + 90.0f) * PI / 180.0f;
-    posX += cos(radYaw) * delta;
-    posZ += sin(radYaw) * delta;
+    float nextX = posX + cos(radYaw) * delta;
+    float nextZ = posZ + sin(radYaw) * delta;
+
+    if (!isColliding(nextX, nextZ)) {
+        posX = nextX;
+        posZ = nextZ;
+    }
+
     posY = CAMERA_HEIGHT;
 }
 
